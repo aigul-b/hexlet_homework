@@ -1,0 +1,23 @@
+[project]
+name = "hexlet-code"
+version = "0.1.0"
+description = "This folder contains homework project called Page_Analyzer"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = []
+
+[dependency-groups]
+dev = [
+    "flask",
+    "gunicorn",
+    "python-dotenv",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pylint",
+]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
