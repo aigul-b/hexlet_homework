@@ -9,7 +9,7 @@ install:
 # Debug the app
 .PHONY: dev 
 dev:
-    uv run flask --debug --app page_analyzer:app run
+	uv run flask --debug --app page_analyzer:app run
 
 # Run the application
 .PHONY: start
@@ -19,13 +19,13 @@ start:
 # Build package
 .PHONY: build
 build:
-    ./build.sh
+	./build.sh
 
 # Run project with gunicorn
 .PHONY: render-start
 render-start:
 	gunicorn -w 5 -b 0.0.0.0:$(PORT) page_analyzer:app
-	
+
 # Run linter
 .PHONY: lint
 lint:
