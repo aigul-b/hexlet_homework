@@ -29,5 +29,6 @@ render-start:
 # Run linter
 .PHONY: lint
 lint:
+	uv sync
 	uv run pylint page_analyzer/
 

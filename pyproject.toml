@@ -4,17 +4,10 @@ version = "0.1.0"
 description = "This folder contains homework project called Page_Analyzer"
 readme = "README.md"
 requires-python = ">=3.10"
-dependencies = []
-
-[dependency-groups]
-dev = [
+dependencies = [
     "flask",
     "gunicorn",
     "python-dotenv",
-]
-
-[project.optional-dependencies]
-dev = [
     "pylint",
 ]
 
