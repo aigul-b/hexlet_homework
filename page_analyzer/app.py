@@ -1,10 +1,11 @@
-from flask import Flask, render_template,request, redirect, url_for, flash
-import validators
 from datetime import datetime
 import os
 
-from db import get_db_connection
-from utils import normalize_url
+import validators
+from flask import Flask, render_template,request, redirect, url_for, flash
+
+from .db import get_db_connection
+from .utils import normalize_url
 
 app = Flask(__name__)
 
