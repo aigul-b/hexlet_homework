@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2 class="mb-4">Сайты</h2>
+
+<!-- Атрибут data-test="urls" обязателен по заданию -->
+<table class="table table-bordered table-hover" data-test="urls">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Имя</th>
+            <th>Дата создания</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for url in urls %}
+        <tr>
+            <td>{{ url.id }}</td>
+            <td>{{ url.name }}</td>
+            <td>{{ url.created_at.strftime('%Y-%m-%d') }}</td>
+            <td>
+                <a href="{{ url_for('url_show', id=url.id) }}" class="btn btn-sm btn-primary">Подробнее</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
