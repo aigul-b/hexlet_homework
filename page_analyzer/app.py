@@ -54,12 +54,12 @@ def urls_list():
         conn.close()
     return render_template('urls.html', urls=urls)
 
-@app.route('/urls/<int:id>')
-def url_show(id):
+@app.route('/urls/<int:url_id>')
+def url_show(url_id):
     conn = get_db_connection()
     try:
         with conn.cursor() as cur:
-            cur.execute("SELECT * FROM urls WHERE id = %s", (id,))
+            cur.execute("SELECT * FROM urls WHERE id = %s", (url_id,))
             url = cur.fetchone()
             if url is None:
                 flash('Страница не найдена', 'danger')
