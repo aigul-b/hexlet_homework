@@ -19,19 +19,16 @@ def index():
         if not validators.url(normalized) or len(normalized) > 255:
             flash('Incorrect URL', 'A danger situation')
             return render_template('index.html'), 422
-
         conn = get_db_connection()
         try:
             with conn.cursor() as curs:
                 # Проверка на существование
                 curs.execute("SELECT id, name FROM urls WHERE name = %s", (normalized,))
                 existing_url = curs.fetchone()
-                
                 if existing_url:
                     url_id = existing_url['id']
                     flash('Страница уже существует', 'info')
                 else:
-                    
                     created_at = datetime.now()
                     curs.execute(
                         "INSERT INTO urls (name, created_at) VALUES (%s, %s) RETURNING id",
@@ -42,9 +39,7 @@ def index():
                     flash('Страница успешно добавлена', 'success')
         finally:
             conn.close()
-            
         return redirect(url_for('url_show', id=url_id))
-    
     return render_template('index.html')
 
 @app.route('/urls')
@@ -57,9 +52,7 @@ def urls_list():
             urls = cur.fetchall()
     finally:
         conn.close()
-    
     return render_template('urls.html', urls=urls)
-
 
 @app.route('/urls/<int:id>')
 def url_show(id):
@@ -73,10 +66,7 @@ def url_show(id):
                 return redirect(url_for('urls_list'))
     finally:
         conn.close()
-        
     return render_template('url.html', url=url)
 
 if __name__ == '__main__':
     app.run(debug=True)
-
-

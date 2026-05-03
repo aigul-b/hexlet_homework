@@ -6,6 +6,6 @@ from dotenv import load_dotenv
 load_dotenv()
 
 def get_db_connection():
-    DATABASE_URL = os.getenv('DATAVASE_URL')
+    DATABASE_URL = os.getenv('DATABASE_URL')
     conn = psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
     return conn
