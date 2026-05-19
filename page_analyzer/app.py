@@ -11,13 +11,13 @@ app = Flask(__name__)
 
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', '09ca872aa6a312027870de98ba97c813')
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/', methods=['GET','POST'])
 def index():
     if request.method == 'POST':
         url_input = request.form.get('url')
         normalized = normalize_url(url_input)
         if not validators.url(normalized) or len(normalized) > 255:
-            flash('Incorrect URL', 'A danger situation')
+            flash('Incorrect URL', 'danger')
             return render_template('index.html'), 422
         conn = get_db_connection()
         try:
@@ -39,7 +39,7 @@ def index():
                     flash('Страница успешно добавлена', 'success')
         finally:
             conn.close()
-        return redirect(url_for('url_show', id=url_id))
+        return redirect(url_for('url_show', url_id=url_id))
     return render_template('index.html')
 
 @app.route('/urls')
@@ -48,7 +48,17 @@ def urls_list():
     try:
         with conn.cursor() as cur:
             # Вывод всех URL, новые первые
-            cur.execute("SELECT * FROM urls ORDER BY id DESC")
+            cur.execute("""
+                        SELECT 
+                            urls.id,
+                            urls.name,
+                            urls.created_at,
+                            MAX(url_checks.created_at) as last_check_date
+                        FROM urls
+                        LEFT JOIN url_checks ON urls.id = url_checks.url_id 
+                        GROUP BY urls.id 
+                        ORDER BY urls.id DESC
+                        """)
             urls = cur.fetchall()
     finally:
         conn.close()
@@ -58,15 +68,40 @@ def urls_list():
 def url_show(url_id):
     conn = get_db_connection()
     try:
-        with conn.cursor() as cur:
-            cur.execute("SELECT * FROM urls WHERE id = %s", (url_id,))
-            url = cur.fetchone()
+        with conn.cursor() as curs:
+            curs.execute("SELECT * FROM urls WHERE id = %s", (url_id,))
+            url = curs.fetchone()
             if url is None:
                 flash('Страница не найдена', 'danger')
                 return redirect(url_for('urls_list'))
+            curs.execute(
+                "SELECT * FROM url_checks WHERE url_id = %s ORDER BY id DESC",
+                (url_id,)
+            )
+            checks = curs.fetchall()
     finally:
         conn.close()
-    return render_template('url.html', url=url)
+    return render_template('url.html', url=url, checks=checks)
+
+
+@app.route('/urls/<int:url_id>/checks',methods=['POST'])
+def url_check(url_id):
+    conn = get_db_connection()
+    try:
+        with conn.cursor() as curs:
+            created_at = datetime.now()
+            curs.execute("INSERT INTO url_checks (url_id, created_at) VALUES (%s, %s) RETURNING id", (url_id, created_at))
+            conn.commit()
+        flash('Страница успешно проверена', 'success')
+    except Exception:
+        conn.rollback()
+        flash('Произошла ошибка при проверке', 'danger')
+    finally:
+        conn.close()
+    return redirect(url_for('url_show', url_id=url_id))
+
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -21,5 +21,45 @@
     </tbody>
 </table>
 
-<a href="{{ url_for('urls_list') }}" class="btn btn-secondary mt-3">Назад</a>
+<!-- <a href="{{ url_for('urls_list') }}" class="btn btn-secondary mt-3">Назад</a>-->
+
+{# Flash-сообщения #}
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% for category, message in messages %}
+    <div class="alert alert-{{ category }}">{{ message }}</div>
+  {% endfor %}
+{% endwith %}
+
+<h2>Проверки</h2>
+
+<form method="post" action="{{ url_for('url_check', id=url.id) }}">
+  <input type="submit" value="Запустить проверку">
+</form>
+
+<table data-test="checks">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Код ответа</th>
+      <th>h1</th>
+      <th>title</th>
+      <th>description</th>
+      <th>Дата создания</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for check in checks %}
+    <tr>
+      <td>{{ check.id }}</td>
+      <td>{{ check.status_code or '' }}</td>
+      <td>{{ check.h1 or '' }}</td>
+      <td>{{ check.title or '' }}</td>
+      <td>{{ check.description or '' }}</td>
+      <td>{{ check.created_at.strftime('%Y-%m-%d') }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+
 {% endblock %}

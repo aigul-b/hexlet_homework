@@ -10,6 +10,7 @@
             <th>ID</th>
             <th>Имя</th>
             <th>Дата создания</th>
+            <th>Последняя проверка</th> <!-- тут новый заголовок -->
             <th></th>
         </tr>
     </thead>
@@ -19,6 +20,13 @@
             <td>{{ url.id }}</td>
             <td>{{ url.name }}</td>
             <td>{{ url.created_at.strftime('%Y-%m-%d') }}</td>
+            <td>
+                {% if url.last_check_date %}
+                    {{ url.last_check_date.strftime('%Y-%m-%d') }}
+                {% else %}
+                    <!-- Если проверок не было, выводим пусто -->
+                {% endif %}
+            </td>
             <td>
                 <a href="{{ url_for('url_show', id=url.id) }}" class="btn btn-sm btn-primary">Подробнее</a>
             </td>
