@@ -3,7 +3,7 @@ import os
 
 import validators
 from flask import Flask, render_template,request, redirect, url_for, flash
-
+import psycopg2
 from .db import get_db_connection
 from .utils import normalize_url
 
@@ -90,10 +90,12 @@ def url_check(url_id):
     try:
         with conn.cursor() as curs:
             created_at = datetime.now()
-            curs.execute("INSERT INTO url_checks (url_id, created_at) VALUES (%s, %s) RETURNING id", (url_id, created_at))
+            curs.execute("INSERT INTO url_checks (url_id, created_at) "
+                         "VALUES (%s, %s) RETURNING id",
+                         (url_id, created_at))
             conn.commit()
         flash('Страница успешно проверена', 'success')
-    except Exception:
+    except psycopg2.Error:
         conn.rollback()
         flash('Произошла ошибка при проверке', 'danger')
     finally:
