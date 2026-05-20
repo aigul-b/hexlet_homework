@@ -114,7 +114,7 @@ def url_check(url_id):
             return redirect(url_for('url_show', url_id=url_id))
 
         status_code = response.status_code
-        
+
         soup = BeautifulSoup(response.text, 'html.parser')
         h1_tag = soup.find('h1')
         title_tag = soup.find('title')
@@ -126,9 +126,9 @@ def url_check(url_id):
 
         with conn.cursor() as curs:
             created_at = datetime.now()
-            curs.execute("INSERT INTO url_checks (url_id, status_code, created_at) "
-                         "VALUES (%s, %s, %s) RETURNING id",
-                         (url_id, status_code, created_at))
+            curs.execute("INSERT INTO url_checks (url_id, status_code, h1, title, description, created_at) "
+                         "VALUES (%s, %s, %s, %s, %s, %s) RETURNING id",
+                         (url_id, status_code, h1, title, description, created_at))
             conn.commit()
         flash('Страница успешно проверена', 'success')
     except psycopg2.Error:
