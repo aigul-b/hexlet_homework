@@ -6,6 +6,7 @@ from flask import Flask, render_template,request, redirect, url_for, flash
 import psycopg2
 from .db import get_db_connection
 from .utils import normalize_url
+import requests
 
 app = Flask(__name__)
 
@@ -25,6 +26,7 @@ def index():
                 # Проверка на существование
                 curs.execute("SELECT id, name FROM urls WHERE name = %s", (normalized,))
                 existing_url = curs.fetchone()
+                conn.commit()
                 if existing_url:
                     url_id = existing_url['id']
                     flash('Страница уже существует', 'info')
@@ -49,14 +51,18 @@ def urls_list():
         with conn.cursor() as cur:
             # Вывод всех URL, новые первые
             cur.execute("""
-                        SELECT 
+                        SELECT
                             urls.id,
                             urls.name,
-                            urls.created_at,
-                            MAX(url_checks.created_at) as last_check_date
+                            last_check.created_at AS last_check_date,
+                            last_check.status_code AS last_status_code
                         FROM urls
-                        LEFT JOIN url_checks ON urls.id = url_checks.url_id 
-                        GROUP BY urls.id 
+                        LEFT JOIN (
+                            SELECT DISTINCT ON (url_id)
+                                url_id, created_at, status_code
+                            FROM url_checks
+                        ORDER BY url_id, created_at DESC
+                        ) AS last_check ON urls.id = last_check.url_id
                         ORDER BY urls.id DESC
                         """)
             urls = cur.fetchall()
@@ -89,10 +95,28 @@ def url_check(url_id):
     conn = get_db_connection()
     try:
         with conn.cursor() as curs:
+            # 1. достать имя сайта
+            curs.execute("SELECT name FROM urls WHERE id = %s", (url_id,))
+            row = curs.fetchone()
+            if row is None:
+                flash("Страница не найдена", 'danger')
+                return redirect(url_for('urls_list'))
+            site_url = row['name']
+
+        try:
+            response = requests.get(site_url, timeout=7)
+            response.raise_for_status()
+        except requests.RequestException:
+            flash('Произошла ошибка при проверке', 'danger')
+            return redirect(url_for('url_show', url_id=url_id))
+
+        status_code = response.status_code
+
+        with conn.cursor() as curs:
             created_at = datetime.now()
-            curs.execute("INSERT INTO url_checks (url_id, created_at) "
-                         "VALUES (%s, %s) RETURNING id",
-                         (url_id, created_at))
+            curs.execute("INSERT INTO url_checks (url_id, status_code, created_at) "
+                         "VALUES (%s, %s, %s) RETURNING id",
+                         (url_id, status_code, created_at))
             conn.commit()
         flash('Страница успешно проверена', 'success')
     except psycopg2.Error:

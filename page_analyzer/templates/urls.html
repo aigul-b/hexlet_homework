@@ -11,7 +11,7 @@
             <th>Имя</th>
             <th>Дата создания</th>
             <th>Последняя проверка</th> <!-- тут новый заголовок -->
-            <th></th>
+            <th>Код ответа</th>
         </tr>
     </thead>
     <tbody>
@@ -27,8 +27,10 @@
                     <!-- Если проверок не было, выводим пусто -->
                 {% endif %}
             </td>
+            <td>{{ url.last_status_code if url.last_status_code is not none else '' }}
+            </td>
             <td>
-                <a href="{{ url_for('url_show', id=url.id) }}" class="btn btn-sm btn-primary">Подробнее</a>
+                <a href="{{ url_for('url_show', url_id=url.id) }}" class="btn btn-sm btn-primary">Подробнее</a>
             </td>
         </tr>
         {% endfor %}
