@@ -12,6 +12,7 @@ dependencies = [
     "pylint",
     "psycopg2",
     "validators",
+    "requests"
 ]
 
 [build-system]

@@ -2,11 +2,12 @@ from datetime import datetime
 import os
 
 import validators
+import requests
 from flask import Flask, render_template,request, redirect, url_for, flash
 import psycopg2
 from .db import get_db_connection
 from .utils import normalize_url
-import requests
+
 
 app = Flask(__name__)
 
