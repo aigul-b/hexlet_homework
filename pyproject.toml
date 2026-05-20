@@ -12,7 +12,8 @@ dependencies = [
     "pylint",
     "psycopg2",
     "validators",
-    "requests"
+    "requests",
+    "beautifulsoup4"
 ]
 
 [build-system]

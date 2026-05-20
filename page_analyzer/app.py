@@ -5,6 +5,8 @@ import validators
 import requests
 from flask import Flask, render_template,request, redirect, url_for, flash
 import psycopg2
+from bs4 import BeautifulSoup
+
 from .db import get_db_connection
 from .utils import normalize_url
 
@@ -112,6 +114,15 @@ def url_check(url_id):
             return redirect(url_for('url_show', url_id=url_id))
 
         status_code = response.status_code
+        
+        soup = BeautifulSoup(response.text, 'html.parser')
+        h1_tag = soup.find('h1')
+        title_tag = soup.find('title')
+        desc_tag = soup.find('meta', attrs={'name': 'description'})
+
+        h1 = h1_tag.get_text(strip=True) if h1_tag else ''
+        title = title_tag.get_text(strip=True) if title_tag else ''
+        description = desc_tag.get('content', '') if desc_tag else ''
 
         with conn.cursor() as curs:
             created_at = datetime.now()

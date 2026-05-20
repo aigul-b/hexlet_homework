@@ -53,15 +53,13 @@
       <td>{{ check.id }}</td>
       <!-- <td>{{ check.status_code or '' }}</td>-->
       <td>{{ check.status_code if check.status_code is not none else '' }}</td>
-      <td>{{ check.h1 or '' }}</td>
-      <td>{{ check.title or '' }}</td>
-      <td>{{ check.description or '' }}</td>
+      <td>{{ check.h1|truncate(200, True, '...') if check.h1 else '' }}</td>
+      <td>{{ check.title|truncate(200, True, '...') if check.title else '' }}</td>
+      <td>{{ check.description|truncate(200, True, '...') if check.description else '' }}</td>
       <td>{{ check.created_at.strftime('%Y-%m-%d') }}</td>
-      
     </tr>
     {% endfor %}
   </tbody>
 </table>
-
 
 {% endblock %}
