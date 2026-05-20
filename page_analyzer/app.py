@@ -126,7 +126,8 @@ def url_check(url_id):
 
         with conn.cursor() as curs:
             created_at = datetime.now()
-            curs.execute("INSERT INTO url_checks (url_id, status_code, h1, title, description, created_at) "
+            curs.execute("INSERT INTO url_checks " 
+                         "(url_id, status_code, h1, title, description, created_at) "
                          "VALUES (%s, %s, %s, %s, %s, %s) RETURNING id",
                          (url_id, status_code, h1, title, description, created_at))
             conn.commit()
